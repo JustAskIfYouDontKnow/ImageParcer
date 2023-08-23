@@ -1,38 +1,70 @@
-﻿namespace GoogleParcer;
+﻿using GoogleParcer.models;
+
+namespace GoogleParcer;
 
 public static class Program
 {
+
+    private const string ApiKey = "AIzaSyAw4S9jnHPMli4bnrqmjFzDkNE3evYfVy4";
+    private const string Cx = "b08f25dda3ed1404d";
+    
+    private const string CustomTerm = " full body car";
+
     private static async Task Main(string[] args)
     {
-        const string apiKey = "AIzaSyAw4S9jnHPMli4bnrqmjFzDkNE3evYfVy4";
-        const string cx = "b08f25dda3ed1404d";
+        var client = InitClient();
         
-        using var client = new HttpClient();
+        var searchTerms = GetSearchTerms();
+        
+        var queryList = GenerateQueryList(searchTerms);
+        
+        await DownloadImageFromQueryListAsync(client, queryList);
+        
+        Console.WriteLine("Work is done");
+    }
+
+    private static ImageSearcher InitClient()
+    {
+        var client = new HttpClient();
         client.DefaultRequestHeaders.UserAgent.ParseAdd("MyUserAgent/1.0");
 
         var imageDownloader = new ImageDownloader(client);
         var imageSearcher = new ImageSearcher(client, imageDownloader);
-
-        
-        //todo: get terms from excel
-        string[] searchTerms =
+        return imageSearcher;
+    }
+    private static IEnumerable<string> GetSearchTerms()
+    {
+        return new[]
         {
-            // "BMW X2", 
-            // "Geely EMGRAND GT",
-            // "Lexus UX200",
-            // "Lexus ES200",
-            // "Lexus LX450",
-            // "Lexus NX200", 
+            "BMW X2",
+            "Geely EMGRAND GT",
+            "Lexus UX200",
+            "Lexus ES200",
+            "Lexus LX450",
+            "Lexus NX200", 
             "Lexus RX350",
         };
-        
-        const string customTerm = " full body car";
-        
-        var tasks = searchTerms
-            .Select(term => imageSearcher.SearchAndDownloadImagesAsync(apiKey, cx, term, customTerm));
-        
-        await Task.WhenAll(tasks);
+    }
+    private static IEnumerable<QueryModel> GenerateQueryList(IEnumerable<string> searchTerms)
+    {
 
-        Console.WriteLine("Work is done");
+
+        return searchTerms.Select(
+                term => new QueryModel
+                {
+                    imageType = "jpg",
+                    imageQuantity = 3,
+                    imageSize = "HUGE",
+                    searchTerm = term,
+                    customSearchTerm = CustomTerm,
+                    searchType = "image",
+                    apiKey = ApiKey,
+                    cx = Cx,
+                }).ToList();
+    }
+    private static async Task DownloadImageFromQueryListAsync(ImageSearcher client, IEnumerable<QueryModel> queryList)
+    {
+        var tasks = queryList.Select(client.SearchAndDownloadImagesAsync);
+        await Task.WhenAll(tasks);
     }
 }
