@@ -18,7 +18,7 @@ public class ImageSearcher
     private async Task<string[]> SearchImagesAsync(string searchQuery)
     {
         var response = await _client.GetAsync(searchQuery);
-        var imageLinks = new List<string>(); // Создаем список для хранения ссылок на изображения
+        var imageLinks = new List<string>();
 
         if (response.IsSuccessStatusCode)
         {
@@ -71,6 +71,7 @@ public class ImageSearcher
             + $"&imgType=photo&num={queryModel.imageQuantity}" 
             + $"&q={escapedSearchTerm}"
             //+ $"&rights={rightsParam}"
+            + $"&imageSortBy=date"
             + $"&searchType={queryModel.searchType}" 
             + $"&start=1" 
             + $"&key={queryModel.apiKey}"

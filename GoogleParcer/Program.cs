@@ -8,7 +8,8 @@ public static class Program
     private const string ApiKey = "AIzaSyAw4S9jnHPMli4bnrqmjFzDkNE3evYfVy4";
     private const string Cx = "b08f25dda3ed1404d";
     
-    private const string CustomTerm = " full body car";
+    // private const string CustomTerm = " full body newest model car";
+    private const string CustomTerm = "";
 
     private static async Task Main(string[] args)
     {
@@ -47,14 +48,12 @@ public static class Program
     }
     private static IEnumerable<QueryModel> GenerateQueryList(IEnumerable<string> searchTerms)
     {
-
-
         return searchTerms.Select(
                 term => new QueryModel
                 {
                     imageType = "jpg",
-                    imageQuantity = 3,
-                    imageSize = "HUGE",
+                    imageQuantity = 1,
+                    imageSize = ImageSizes.Large.ToString(),
                     searchTerm = term,
                     customSearchTerm = CustomTerm,
                     searchType = "image",

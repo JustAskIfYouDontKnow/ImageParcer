@@ -11,16 +11,26 @@ public class ImageDownloader
 
     public async Task DownloadImageAsync(string imageUrl, string destinationPath)
     {
-        using var imageResponse = await _client.GetAsync(imageUrl);
-        if (imageResponse.IsSuccessStatusCode)
+        try
         {
-            await using var imageStream = await imageResponse.Content.ReadAsStreamAsync();
-            await using var fileStream = File.Create(destinationPath);
-            await imageStream.CopyToAsync(fileStream);
+            using var imageResponse = await _client.GetAsync(imageUrl);
+            
+            if (imageResponse.IsSuccessStatusCode)
+            {
+                await using var imageStream = await imageResponse.Content.ReadAsStreamAsync();
+                await using var fileStream = File.Create(destinationPath);
+                await imageStream.CopyToAsync(fileStream);
+            }
+            else
+            {
+                Console.WriteLine($"Failed to download image from {imageUrl}. Status code: {imageResponse.StatusCode}");
+            }
         }
-        else
+        catch (Exception e)
         {
-            Console.WriteLine($"Failed to download image from {imageUrl}. Status code: {imageResponse.StatusCode}");
+            Console.WriteLine(e);
+            throw;
         }
+        
     }
 }
